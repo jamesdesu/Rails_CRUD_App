@@ -1,25 +1,25 @@
 class GamesController < ApplicationController
-  before_action :set_game, only: %i[ show update destroy ]
+  before_action :set_game, only: %i[ update destroy ]
 
-  # GET /games
+  #The application is only an API meant to be interacted with from a dedicated frontend, requests going to / shouldn't return anything.
+  def invalidEndpoint
+    render plain: "Invalid endpoint."
+  end
+
+  # GET /games/allGames
   def index
     @games = Game.all
-
     render json: @games
   end
 
-  def show
-    #empty
-  end
-
-  # GET /games/1
+  # GET /games/searchGames?query_parameters
   def searchGames
     @parsedParams = request.query_parameters
     @games = Game.publisherSearch(@parsedParams['publisher']).releaseYearSearch(@parsedParams['releaseYear']).systemSearch(@parsedParams['system']).titleSearch(@parsedParams['title'])
     render json: @games
   end
 
-  # POST /games
+  # POST /games/addGame
   def create
     @parsedReq = JSON.parse(request.raw_post)
 
@@ -31,7 +31,7 @@ class GamesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /games/1
+  # PATCH/PUT /games/updateGame/:id
   def update
     if @game.update(game_params)
       render json: @game
@@ -40,7 +40,7 @@ class GamesController < ApplicationController
     end
   end
 
-  # DELETE /games/1
+  # DELETE /games/deleteGame/:id
   def destroy
     puts request.body.read
     @game.destroy!
